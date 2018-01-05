@@ -13,6 +13,8 @@ public class Scale implements Serializable {
     public int octaveRange; //min 3
     public ArrayList<String> notesAsText = new ArrayList<>();
     public ArrayList<MediaPlayer> sounds = new ArrayList<>();
+    public String name;
+    public String description;
 
     public Scale(int key, int type, int octaveRange){
         this.key = key;
@@ -31,14 +33,10 @@ public class Scale implements Serializable {
             default:
                 Log.v("Scale", "Unknown type");
         }
-    }
-
-    public String toString(){
-        String description =
-                key + " " + type +
-                        " containing " + noteRange + " notes," +
-                        " ranging over " + octaveRange + " octaves.";
-        return description;
+        name = key + " " + type;
+        description = type + " scale," +
+                " containing " + noteRange + " notes," +
+                " ranging over " + octaveRange + " octaves.";
     }
 
 }
