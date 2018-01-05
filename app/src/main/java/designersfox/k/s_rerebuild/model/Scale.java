@@ -33,4 +33,12 @@ public class Scale implements Serializable {
         }
     }
 
+    public String toString(){
+        String description =
+                key + " " + type +
+                        " containing " + noteRange + " notes," +
+                        " ranging over " + octaveRange + " octaves.";
+        return description;
+    }
+
 }
