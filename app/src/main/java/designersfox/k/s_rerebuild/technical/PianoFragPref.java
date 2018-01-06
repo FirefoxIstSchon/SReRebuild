@@ -6,8 +6,8 @@ import java.util.ArrayList;
 
 public class PianoFragPref {
 
-    public ArrayList<int[]> savedColorpacks;
-    public Scale currentScale;
+    public static ArrayList<int[]> savedColorpacks;
+    public static Scale currentScale;
 
     static volatile PianoFragPref pianoFragPref;
 

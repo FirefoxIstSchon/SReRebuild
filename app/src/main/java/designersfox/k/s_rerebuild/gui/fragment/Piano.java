@@ -38,12 +38,7 @@ public class Piano extends Fragment {
 
     float[] xCoord, yCoord;
     double[] sectionPressed;
-
-    final int touchSlop = ViewConfiguration.get(getActivity()).getScaledTouchSlop();
-    final int screenHeight
-            = Resources.getSystem().getDisplayMetrics().heightPixels;
-    final int screenWidth
-            = Resources.getSystem().getDisplayMetrics().widthPixels;
+    int touchSlop, screenHeight, screenWidth;
 
     public interface PianoListener{
         void onPianoEventDetected(double[] sectionOfTouch);
@@ -70,11 +65,11 @@ public class Piano extends Fragment {
         xCoord = new float[3];
         yCoord = new float[3];
         sectionPressed = new double[3];
-        currentNoteRange = currentScale.noteRange;
-        currentOctaveRange = currentScale.octaveRange;
         pianoFragPref = PianoFragPref.getInstance();
         savedColorpacks = pianoFragPref.savedColorpacks;
         currentScale = pianoFragPref.currentScale;
+        currentNoteRange = currentScale.noteRange;
+        currentOctaveRange = currentScale.octaveRange;
         if(bundle == null){
             randomizeColors();
         }else{
@@ -96,6 +91,9 @@ public class Piano extends Fragment {
         });
         gridLayout = view.findViewById(R.id.gridlayoutPiano);
         gridLayout.setBackgroundColor(Color.BLACK);
+        touchSlop = ViewConfiguration.get(getActivity()).getScaledTouchSlop();
+        screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
+        screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
         return view;
     }
 
@@ -223,9 +221,9 @@ public class Piano extends Fragment {
     public void evokeReplay(double[] sectionPressed){
         for(int i = 0; i < xCoord.length; i++){ //todo: section to XY here
             xCoord[i] = ((long) sectionPressed[i]);
-            yCoord[i] = sectionPressed[i] - xCoord[i];
+            yCoord[i] = (float) sectionPressed[i] - xCoord[i];
+            XYtoSynth(xCoord, yCoord);
         }
-        XYtoSynth(xCoord, yCoord);
     }
 
     public static void randomizeColors(){

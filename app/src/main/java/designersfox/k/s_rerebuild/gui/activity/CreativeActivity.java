@@ -4,6 +4,7 @@ import designersfox.k.s_rerebuild.R;
 import designersfox.k.s_rerebuild.factory.ScaleFactory;
 import designersfox.k.s_rerebuild.gui.fragment.Piano;
 import designersfox.k.s_rerebuild.gui.fragment.Preference;
+import designersfox.k.s_rerebuild.technical.PianoFragPref;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -24,7 +25,6 @@ import android.widget.Toast;
 public class CreativeActivity extends Activity implements Piano.PianoListener {
 
     FrameLayout frameLayout;
-    Piano piano;
     Button buttonStartStop;
     Button buttonLearningModeOn;
     Button buttonMyRecordings;
@@ -43,23 +43,19 @@ public class CreativeActivity extends Activity implements Piano.PianoListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_creative);
-        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
-            getActionBar().hide();
-        }
         referenceDrawerViews();
         setDrawerViews();
-        piano = (Piano) getFragmentManager().findFragmentById(R.id.pianoFragment);
+        initPianoFragmentPrefs();
         callPianoFragment();
         setButtonView();
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return super.onCreateOptionsMenu(menu);
+    public void onPianoEventDetected(double[] sectionOfTouch) {
+        //todo: objeye save etme isi
     }
 
-    public void callPianoFragment() {
+    private void callPianoFragment() {
         Fragment fragment = new Piano();
         frameLayout = findViewById(R.id.frameLayout);
         FragmentTransaction ft = getFragmentManager().beginTransaction();
@@ -68,23 +64,35 @@ public class CreativeActivity extends Activity implements Piano.PianoListener {
         ft.commit();
     }
 
+    private void initPianoFragmentPrefs(){
+        if(PianoFragPref.currentScale == null){
+            scaleFactory = ScaleFactory.getInstance();
+            PianoFragPref.currentScale = scaleFactory.getScale(2,1,2,this);
+            //default scale: d-dorian 2 octaves
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
     private void referenceDrawerViews(){
         drawer = findViewById(R.id.drawer);
         drawerLayout = findViewById(R.id.drawerLayout);
     }
 
     private void setDrawerViews(){
-        //Create the ActionBarDrawerToggle
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout,
                 R.string.open_drawer, R.string.close_drawer) {
-            //Called when a drawer has settled in a completely closed state
+
             @Override
             public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
                 invalidateOptionsMenu();
             }
 
-            //Called when a drawer has settled in a completely open state.
             @Override
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
@@ -92,10 +100,12 @@ public class CreativeActivity extends Activity implements Piano.PianoListener {
             }
         };
         drawerLayout.setDrawerListener(drawerToggle);
-
+        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
+            getActionBar().hide();
+        }
         getActionBar().setDisplayHomeAsUpEnabled(true);
         getActionBar().setHomeButtonEnabled(true);
-        getActionBar().setTitle("CreativeActivity Play");
+        getActionBar().setTitle("Creative Activity");
     }
 
     @Override
@@ -130,13 +140,13 @@ public class CreativeActivity extends Activity implements Piano.PianoListener {
     }
 
     private void referenceButtonViews(){
-        buttonStartStop = (Button) findViewById(R.id.buttonRecord);
-        buttonLearningModeOn = (Button) findViewById(R.id.buttonLearningModeOn);
-        buttonMyRecordings = (Button) findViewById(R.id.buttonMyRecordings);
-        buttonReRandomizeColors = (Button) findViewById(R.id.buttonMyProfile);
-        buttonILikeThisConfig = (Button) findViewById(R.id.buttonILikeThisConfig);
-        buttonMyConfigs = (Button) findViewById(R.id.buttonMyConfigs);
-        buttonToggleGrayScale = (Button) findViewById(R.id.buttonToggleGrayScale);
+        buttonStartStop = findViewById(R.id.buttonRecord);
+        buttonLearningModeOn = findViewById(R.id.buttonLearningModeOn);
+        buttonMyRecordings = findViewById(R.id.buttonMyRecordings);
+        buttonReRandomizeColors = findViewById(R.id.buttonMyProfile);
+        buttonILikeThisConfig = findViewById(R.id.buttonILikeThisConfig);
+        buttonMyConfigs = findViewById(R.id.buttonMyConfigs);
+        buttonToggleGrayScale = findViewById(R.id.buttonToggleGrayScale);
     }
 
     private void setButtonViewOnClickListeners(){
@@ -147,7 +157,7 @@ public class CreativeActivity extends Activity implements Piano.PianoListener {
                 if(isRecording){ // stop recording
                     drawerLayout.closeDrawer(drawer);
 
-//todo:
+                     //todo:
 
                     isRecording= false;
                     buttonStartStop.setText(R.string.startRecord);
@@ -155,7 +165,7 @@ public class CreativeActivity extends Activity implements Piano.PianoListener {
                 }else{ // start recording
                     drawerLayout.closeDrawer(drawer);
 
-//todo:
+                     //todo:
 
                     isRecording= true;
                     buttonStartStop.setText(R.string.stopRecord);
@@ -217,10 +227,7 @@ public class CreativeActivity extends Activity implements Piano.PianoListener {
             public void onClick(View view) {
                 drawerLayout.closeDrawer(drawer);
                 Toast.makeText(CreativeActivity.this, "GrayScale toggled.", Toast.LENGTH_SHORT).show();
-                if(Piano.BWModeOn){
-                    Piano.BWModeOn = false;
-                }else{
-                    Piano.BWModeOn = true;}
+                Piano.BWModeOn = !Piano.BWModeOn;
                 FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
                 fragmentTransaction.replace(R.id.frameLayout, new Piano());
                 fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
@@ -229,7 +236,29 @@ public class CreativeActivity extends Activity implements Piano.PianoListener {
     }
 
     @Override
-    public void onPianoEventDetected(double[] sectionOfTouch) {
-
+    public void onBackPressed() {
+        super.onBackPressed();
+        //startActivity(new Intent(this, MainActivity.class)); //todo: backpresste nereye don
     }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        boolean drawerOpen = drawerLayout.isDrawerOpen(drawer);
+        menu.findItem(R.id.action_settings).setVisible(!drawerOpen);
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        drawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        drawerToggle.onConfigurationChanged(newConfig);
+    }
+
+
 }
