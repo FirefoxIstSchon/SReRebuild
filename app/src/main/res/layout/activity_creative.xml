@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawerLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="designersfox.k.s_rerebuild.gui.activity.CreativeActivity">
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:name="com.example.kroot.soundwarsrebuild.PianoFragment"
+        android:id="@+id/frameLayout"
+        tools:layout="@layout/fragment_piano" />
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/drawer"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+
+        android:layout_gravity="start"
+        android:background="@android:color/black"
+        android:choiceMode="singleChoice"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="0dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <Button
+            android:id="@+id/buttonLearningModeOn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:text="Toggle Learning Mode"
+            android:textColor="@android:color/white"
+            android:drawableLeft="@drawable/ic_book"
+            android:gravity="start|center_vertical"
+            app:constraintSet="@android:drawable/divider_horizontal_dim_dark"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:layout_editor_absoluteX="0dp" />
+
+        <Button
+            android:id="@+id/buttonRecord"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:text="Record"
+            android:textColor="@android:color/white"
+            android:drawableLeft="@drawable/ic_record"
+            android:gravity="start|center_vertical"
+            app:constraintSet="@android:drawable/divider_horizontal_dim_dark"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:layout_editor_absoluteX="0dp" />
+
+        <Button
+            android:id="@+id/buttonMyRecordings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:text="My Recordings"
+            android:textColor="@android:color/white"
+            android:drawableLeft="@drawable/ic_myrecordings"
+            android:gravity="left|center_vertical"
+            app:constraintSet="@android:drawable/divider_horizontal_dim_dark"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:layout_editor_absoluteX="0dp" />
+
+        <Button
+            android:id="@+id/buttonMyProfile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:text="ReRandomize Colors"
+            android:textColor="@android:color/white"
+            android:drawableLeft="@drawable/ic_rerandomizecolors"
+            android:gravity="left|center_vertical"
+            app:constraintSet="@android:drawable/divider_horizontal_dim_dark"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:layout_editor_absoluteX="0dp" />
+
+        <Button
+            android:id="@+id/buttonILikeThisConfig"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:text="Like This Color?"
+            android:textColor="@android:color/white"
+            android:drawableLeft="@drawable/ic_ilikethisconfig"
+            android:gravity="left|center_vertical"
+            app:constraintSet="@android:drawable/divider_horizontal_dim_dark"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:layout_editor_absoluteX="0dp" />
+
+        <Button
+            android:id="@+id/buttonMyConfigs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:text="My Colorpacks"
+            android:textColor="@android:color/white"
+            android:drawableLeft="@drawable/ic_myconfigs"
+            android:gravity="left|center_vertical"
+            app:constraintSet="@android:drawable/divider_horizontal_dim_dark"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:layout_editor_absoluteX="0dp" />
+
+        <Button
+            android:id="@+id/buttonToggleGrayScale"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:text="Toggle GrayScale"
+            android:textColor="@android:color/white"
+            android:drawableLeft="@drawable/ic_togglegrayscale"
+            android:gravity="left|center_vertical"
+            app:constraintSet="@android:drawable/divider_horizontal_dim_dark"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:layout_editor_absoluteX="0dp" />
+
+    </LinearLayout>
+
+</android.support.v4.widget.DrawerLayout>

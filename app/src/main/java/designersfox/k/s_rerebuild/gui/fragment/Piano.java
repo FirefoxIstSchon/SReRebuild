@@ -2,7 +2,7 @@ package designersfox.k.s_rerebuild.gui.fragment;
 
 import designersfox.k.s_rerebuild.R;
 import designersfox.k.s_rerebuild.model.Scale;
-import designersfox.k.s_rerebuild.technical.PianoPref;
+import designersfox.k.s_rerebuild.technical.PianoFragPref;
 
 import android.app.Fragment;
 import android.content.Context;
@@ -20,7 +20,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class PianoFragment extends Fragment {
+public class Piano extends Fragment {
 
     public static boolean BWModeOn = false;
     public static boolean learningModeOn = true;
@@ -30,7 +30,7 @@ public class PianoFragment extends Fragment {
     MediaPlayer[] currentSounds;
     static Scale currentScale;
     static int currentNoteRange, currentOctaveRange;
-    static PianoPref pianoPref;
+    static PianoFragPref pianoFragPref;
     static Random random;
     static ArrayList<int[]> savedColorpacks;
     static float randomVal1, randomVal2, randomVal3;
@@ -72,9 +72,9 @@ public class PianoFragment extends Fragment {
         sectionPressed = new double[3];
         currentNoteRange = currentScale.noteRange;
         currentOctaveRange = currentScale.octaveRange;
-        pianoPref = PianoPref.getInstance();
-        savedColorpacks = pianoPref.savedColorpacks;
-        currentScale = pianoPref.currentScale;
+        pianoFragPref = PianoFragPref.getInstance();
+        savedColorpacks = pianoFragPref.savedColorpacks;
+        currentScale = pianoFragPref.currentScale;
         if(bundle == null){
             randomizeColors();
         }else{
@@ -109,10 +109,10 @@ public class PianoFragment extends Fragment {
 
                 break;
             case MotionEvent.ACTION_MOVE:
-                if(Math.abs(event.getX() - previousTouchX) > touchSlop || Math.abs(event.getY() - previousTouchY) > touchSlop){ //todo: math-physical application check
+               /*if(Math.abs(event.getX() - previousTouchX) > touchSlop || Math.abs(event.getY() - previousTouchY) > touchSlop){ //todo: math-physical application check
 
 
-                }
+                }*/
                 break;
             case MotionEvent.ACTION_POINTER_DOWN:
 
@@ -220,12 +220,10 @@ public class PianoFragment extends Fragment {
         gridLayout.setBackgroundColor(customColor);
     }
 
-    public void evokeReplay(ArrayList<int[]> touch){ //todo: collect replay data as ArrayList<xCoord,yCoord>
-        for (int i = 0; i < xCoord.length; i++){
-            xCoord[i] = touch.get(0)[i];
-        }
-        for (int j = 0; j < yCoord.length; j++){
-            yCoord[j] = touch.get(1)[j];
+    public void evokeReplay(double[] sectionPressed){
+        for(int i = 0; i < xCoord.length; i++){ //todo: section to XY here
+            xCoord[i] = ((long) sectionPressed[i]);
+            yCoord[i] = sectionPressed[i] - xCoord[i];
         }
         XYtoSynth(xCoord, yCoord);
     }
@@ -238,8 +236,8 @@ public class PianoFragment extends Fragment {
     }
 
     public static void shuffleColors(){
-        int i = random.nextInt(pianoPref.savedColorpacks.size());
-        int[] colorPack = pianoPref.savedColorpacks.get(i);
+        int i = random.nextInt(pianoFragPref.savedColorpacks.size());
+        int[] colorPack = pianoFragPref.savedColorpacks.get(i);
         randomVal1 = colorPack[0];
         randomVal2 = colorPack[1];
         randomVal3 = colorPack[2];
