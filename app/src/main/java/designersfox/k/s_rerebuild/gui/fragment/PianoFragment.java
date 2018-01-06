@@ -2,7 +2,7 @@ package designersfox.k.s_rerebuild.gui.fragment;
 
 import designersfox.k.s_rerebuild.R;
 import designersfox.k.s_rerebuild.model.Scale;
-import designersfox.k.s_rerebuild.technical.UserPref;
+import designersfox.k.s_rerebuild.technical.PianoPref;
 
 import android.app.Fragment;
 import android.content.Context;
@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.GridLayout;
 import android.widget.Toast;
@@ -22,24 +23,27 @@ import java.util.Random;
 
 public class PianoFragment extends Fragment {
 
-    public static Scale currentScale;
+    public static boolean BWModeOn = false;
+    public static boolean learningModeOn = true;
+
+    GridLayout gridLayout;
+    PianoListener pianoListener;
+    MediaPlayer currentSound1, currentSound2, currentSound3;
+    static Scale currentScale;
+    static PianoPref pianoPref;
     static Random random;
-    static UserPref userPref;
     static ArrayList<int[]> savedColorpacks;
-    static boolean BWModeOn = false;
-    static boolean learningModeOn = true;
     static float randomVal1, randomVal2, randomVal3;
+    static Toast dispNotePressed;
+
     float x1, y1, x2, y2, x3, y3;
     double sectionPtr1, sectionPtr2, sectionPtr3;
-    GridLayout gridLayout;
-    Toast dispNotePressed;
-    MediaPlayer currentSound1, currentSound2, currentSound3;
+
+    final int touchSlop = ViewConfiguration.get(getActivity()).getScaledTouchSlop();
     final int screenHeight
             = Resources.getSystem().getDisplayMetrics().heightPixels;
     final int screenWidth
             = Resources.getSystem().getDisplayMetrics().widthPixels;
-
-    PianoListener pianoListener;
 
     public interface PianoListener{
         void onPianoEventDetected(double section1, double section2, double section3);
@@ -65,6 +69,8 @@ public class PianoFragment extends Fragment {
     }
 
     private void loadPrefs(Bundle bundle){
+        pianoPref = PianoPref.getInstance();
+        currentScale = pianoPref.currentScale;
         if(bundle == null){
             randomizeColors();
         }else{
@@ -72,7 +78,6 @@ public class PianoFragment extends Fragment {
             randomVal2 = bundle.getInt("rv2");
             randomVal3 = bundle.getInt("rv3");
         }
-        currentScale = userPref.currentScale;
     }
 
     private View initView(LayoutInflater inflater, ViewGroup container){
@@ -86,6 +91,15 @@ public class PianoFragment extends Fragment {
                 //todo; 2-evokeSynth(1,2,3) gibi bisey etkisini gostersin
                 // ki replay de bu sekilde bunu kullanir
 
+                evalTouch();
+                evokeSynth();
+
+
+
+
+
+
+
 
 
 
@@ -98,6 +112,14 @@ public class PianoFragment extends Fragment {
         return view;
     }
 
+    private void evalTouch(){
+        //todo
+    }
+
+    private void evokeSynth(){
+        //todo
+    }
+
     public static void randomizeColors(){
         random = new Random();
         randomVal1 = random.nextFloat();
@@ -106,17 +128,16 @@ public class PianoFragment extends Fragment {
     }
 
     public static void shuffleColors(){
-        int i = random.nextInt(userPref.savedColorpacks.size());
-        int[] colorPack = userPref.savedColorpacks.get(i);
+        int i = random.nextInt(pianoPref.savedColorpacks.size());
+        int[] colorPack = pianoPref.savedColorpacks.get(i);
         randomVal1 = colorPack[0];
         randomVal2 = colorPack[1];
         randomVal3 = colorPack[2];
     }
 
-
-
-
-
-
-
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        //todo: put rv1 2 3 to bundle
+    }
 }
