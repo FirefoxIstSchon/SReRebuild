@@ -2,6 +2,7 @@ package designersfox.k.s_rerebuild.gui.fragment;
 
 import designersfox.k.s_rerebuild.R;
 import designersfox.k.s_rerebuild.model.Scale;
+import designersfox.k.s_rerebuild.technical.UserPref;
 
 import android.app.Fragment;
 import android.content.Context;
@@ -16,27 +17,23 @@ import android.view.ViewGroup;
 import android.widget.GridLayout;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 public class PianoFragment extends Fragment {
 
     public static Scale currentScale;
-    GridLayout gridLayout;
-    static Toast toast;
-    static MediaPlayer currentSound1;
-    static MediaPlayer currentSound2;
-    static MediaPlayer currentSound3;
     static Random random;
-    static boolean learningModeOn = true;
-    static boolean randomized = false;
+    static UserPref userPref;
+    static ArrayList<int[]> savedColorpacks;
     static boolean BWModeOn = false;
+    static boolean learningModeOn = true;
+    static float randomVal1, randomVal2, randomVal3;
     float x1, y1, x2, y2, x3, y3;
-    double touchCoordinateValue1;
-    double touchCoordinateValue2;
-    double touchCoordinateValue3;
-    static float randomValue1;
-    static float randomValue2;
-    static float randomValue3;
+    double sectionPtr1, sectionPtr2, sectionPtr3;
+    GridLayout gridLayout;
+    Toast dispNotePressed;
+    MediaPlayer currentSound1, currentSound2, currentSound3;
     final int screenHeight
             = Resources.getSystem().getDisplayMetrics().heightPixels;
     final int screenWidth
@@ -63,10 +60,23 @@ public class PianoFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        loadPrefs(savedInstanceState);
+        return initView(inflater, container);
+    }
+
+    private void loadPrefs(Bundle bundle){
+        if(bundle == null){
+            randomizeColors();
+        }else{
+            randomVal1 = bundle.getInt("rv1");
+            randomVal2 = bundle.getInt("rv2");
+            randomVal3 = bundle.getInt("rv3");
+        }
+        currentScale = userPref.currentScale;
+    }
+
+    private View initView(LayoutInflater inflater, ViewGroup container){
         View view = inflater.inflate(R.layout.fragment_piano,container, false);
-        gridLayout = view.findViewById(R.id.gridLayoutFragment);
-        gridLayout.setBackgroundColor(Color.BLACK);
-        if(!randomized){randomizeColors();}
         view.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -83,23 +93,27 @@ public class PianoFragment extends Fragment {
                 return true;
             }
         });
+        gridLayout = view.findViewById(R.id.gridlayoutPiano);
+        gridLayout.setBackgroundColor(Color.BLACK);
         return view;
     }
 
     public static void randomizeColors(){
         random = new Random();
-        randomValue1 = random.nextFloat();
-        randomValue2 = random.nextFloat();
-        randomValue3 = random.nextFloat();
-        randomized = true;
+        randomVal1 = random.nextFloat();
+        randomVal2 = random.nextFloat();
+        randomVal3 = random.nextFloat();
     }
 
-    /*public static void shuffleSavedColors(){ ////todo: config olayina el at
-        int i = random.nextInt(ConfigObject.myConfigs.size());
-        randomValue1 = ConfigObject.myConfigs.get(i).getRandomValue1();
-        randomValue2 = ConfigObject.myConfigs.get(i).getRandomValue2();
-        randomValue3 = ConfigObject.myConfigs.get(i).getRandomValue3();
-    }*/
+    public static void shuffleColors(){
+        int i = random.nextInt(userPref.savedColorpacks.size());
+        int[] colorPack = userPref.savedColorpacks.get(i);
+        randomVal1 = colorPack[0];
+        randomVal2 = colorPack[1];
+        randomVal3 = colorPack[2];
+    }
+
+
 
 
 
