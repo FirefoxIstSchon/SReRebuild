@@ -145,11 +145,13 @@ public class Piano extends Fragment {
             if(xCoord[i] == 0 && yCoord[i] == 0){
                 sectionPressed[i] = 0;
             }
+            int xratio = screenWidth/currentNoteRange;
+            int yratio = screenHeight/currentOctaveRange;
             for(int j = 1; j <= currentNoteRange; j++){
                 for(int k = 1; k <= currentOctaveRange; k++){
-                    if(xCoord[i] <= screenWidth/currentNoteRange*j){
-                        if(yCoord[i] <= screenHeight/currentOctaveRange*k){
-                            currentSounds[i] = currentScale.sounds.get(j + k*currentNoteRange);
+                    if(xCoord[i] <= xratio*j){
+                        if(yCoord[i] <= yratio*k){
+                            currentSounds[i] = currentScale.sounds.get((j-1) + (k-1)*currentNoteRange);
                             if(learningModeOn){
                                 String notePlayed = currentScale.notesAsText.get(i);
                                 if (notePressedDisplay!= null) {notePressedDisplay.cancel();}
