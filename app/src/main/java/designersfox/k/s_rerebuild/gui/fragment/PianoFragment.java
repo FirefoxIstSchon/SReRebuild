@@ -17,7 +17,6 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.GridLayout;
 import android.widget.Toast;
-
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -28,16 +27,17 @@ public class PianoFragment extends Fragment {
 
     GridLayout gridLayout;
     PianoListener pianoListener;
-    MediaPlayer currentSound1, currentSound2, currentSound3;
+    MediaPlayer[] currentSounds;
     static Scale currentScale;
+    static int currentNoteRange, currentOctaveRange;
     static PianoPref pianoPref;
     static Random random;
     static ArrayList<int[]> savedColorpacks;
     static float randomVal1, randomVal2, randomVal3;
-    static Toast dispNotePressed;
+    static Toast notePressedDisplay;
 
-    float x1, y1, x2, y2, x3, y3;
-    double sectionPtr1, sectionPtr2, sectionPtr3;
+    float[] xCoord, yCoord;
+    double[] sectionPressed;
 
     final int touchSlop = ViewConfiguration.get(getActivity()).getScaledTouchSlop();
     final int screenHeight
@@ -46,8 +46,7 @@ public class PianoFragment extends Fragment {
             = Resources.getSystem().getDisplayMetrics().widthPixels;
 
     public interface PianoListener{
-        void onPianoEventDetected(double section1, double section2, double section3);
-        //todo: activity bu bilgi ile save edicek
+        void onPianoEventDetected(double[] sectionOfTouch);
     }
 
     @Override
@@ -60,8 +59,6 @@ public class PianoFragment extends Fragment {
         }
     }
 
-    //todo : replay piano'ya s1 s2 s3 gonderip ses cikartabilsin
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         loadPrefs(savedInstanceState);
@@ -69,7 +66,14 @@ public class PianoFragment extends Fragment {
     }
 
     private void loadPrefs(Bundle bundle){
+        currentSounds = new MediaPlayer[3];
+        xCoord = new float[3];
+        yCoord = new float[3];
+        sectionPressed = new double[3];
+        currentNoteRange = currentScale.noteRange;
+        currentOctaveRange = currentScale.octaveRange;
         pianoPref = PianoPref.getInstance();
+        savedColorpacks = pianoPref.savedColorpacks;
         currentScale = pianoPref.currentScale;
         if(bundle == null){
             randomizeColors();
@@ -85,25 +89,8 @@ public class PianoFragment extends Fragment {
         view.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-
-
-                //onTouchEvent(motionEvent); //todo: 1-evalTouch vs gibi bisey 1,2,3 dondursun
-                //todo; 2-evokeSynth(1,2,3) gibi bisey etkisini gostersin
-                // ki replay de bu sekilde bunu kullanir
-
-                evalTouch();
-                evokeSynth();
-
-
-
-
-
-
-
-
-
-
-
+                evalTouch(motionEvent);
+                XYtoSynth(xCoord, yCoord);
                 return true;
             }
         });
@@ -112,12 +99,135 @@ public class PianoFragment extends Fragment {
         return view;
     }
 
-    private void evalTouch(){
-        //todo
+    private void evalTouch(MotionEvent event){        //todo: duzenlenicek to set xys
+        int pointerCount = event.getPointerCount();
+        int actionIndex = event.getActionIndex();
+
+        switch(event.getAction() & MotionEvent.ACTION_MASK){
+            case MotionEvent.ACTION_DOWN:
+
+
+                break;
+            case MotionEvent.ACTION_MOVE:
+                if(Math.abs(event.getX() - previousTouchX) > touchSlop || Math.abs(event.getY() - previousTouchY) > touchSlop){ //todo: math-physical application check
+
+
+                }
+                break;
+            case MotionEvent.ACTION_POINTER_DOWN:
+
+
+                break;
+            case MotionEvent.ACTION_POINTER_UP:
+
+
+                break;
+            case MotionEvent.ACTION_UP:
+                gridLayout.setBackgroundColor(Color.BLACK);
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        for(MediaPlayer mp : currentSounds){
+                            try {
+                                mp.reset();
+                                mp.prepare();
+                                mp.stop();
+                                mp.release();
+                            } catch (Throwable t) {t.printStackTrace();}
+                        }
+                    }
+                }).start();
+            default:
+        }
+
     }
 
-    private void evokeSynth(){
-        //todo
+    private void XYtoSynth(float[] xCoord, float[] yCoord){
+        for(int i = 0; i < currentSounds.length; i++){
+            if(xCoord[i] == 0 && yCoord[i] == 0){
+                sectionPressed[i] = 0;
+            }
+            for(int j = 1; j <= currentNoteRange; j++){
+                for(int k = 1; k <= currentOctaveRange; k++){
+                    if(xCoord[i] <= screenWidth/currentNoteRange*j){
+                        if(yCoord[i] <= screenHeight/currentOctaveRange*k){
+                            currentSounds[i] = currentScale.sounds.get(j + k*currentNoteRange);
+                            if(learningModeOn){
+                                String notePlayed = currentScale.notesAsText.get(i);
+                                if (notePressedDisplay!= null) {notePressedDisplay.cancel();}
+                                notePressedDisplay = Toast.makeText(getActivity(), notePlayed, Toast.LENGTH_SHORT);
+                                notePressedDisplay.show();
+                            }
+                            sectionPressed[i] = j + k*0.1;
+                        }
+                    }
+                }
+            }
+        }
+        pianoListener.onPianoEventDetected(sectionPressed);
+        evokeSound();
+        evokeVisual();
+    }
+
+    private void evokeSound(){
+        for(MediaPlayer sound : currentSounds){
+            if(sound != null){
+                try {
+                    sound.prepare(); //todo: burasi error vericekmi
+                    sound.start();
+                } catch (Throwable t) {t.printStackTrace();}
+            }
+        }
+    }
+
+    private void evokeVisual(){
+        int r,g,b;
+        if(sectionPressed[2] == 0){
+            if(sectionPressed[1] == 0){
+                //singleTouchSyn(tcv1);
+                if(BWModeOn){
+                    r = (int) sectionPressed[0]*8;
+                    g = (int) sectionPressed[0]*8;
+                    b = (int) sectionPressed[0]*8;
+                }else{
+                    r = (int) (sectionPressed[0]/(randomVal1))*8;
+                    g = (int) (sectionPressed[1]/(randomVal2))*8;
+                    b = (int) (sectionPressed[2]/(randomVal3))*8;
+                }
+            }else{
+                if(BWModeOn){
+                    r = (int) (sectionPressed[0]+ sectionPressed[1])/2*10;
+                    g = (int) (sectionPressed[0]+ sectionPressed[1])/2*10;
+                    b = (int) (sectionPressed[0]+ sectionPressed[1])/2*10;
+                }else{
+                    r = (int) ((sectionPressed[0]+ sectionPressed[1])/(randomVal1))*10;
+                    g = (int) ((sectionPressed[0]+ sectionPressed[1])/(randomVal2))*10;
+                    b = (int) ((sectionPressed[0]+ sectionPressed[1])/(randomVal3))*10;
+                }
+            }
+        }else{
+            if(BWModeOn){
+                r = (int) (sectionPressed[0]+ sectionPressed[1]+ sectionPressed[2])/3*12;
+                g = (int) (sectionPressed[0]+ sectionPressed[1]+ sectionPressed[2])/3*12;
+                b = (int) (sectionPressed[0]+ sectionPressed[1]+ sectionPressed[2])/3*12;
+            }else{
+                r = (int) ((sectionPressed[0]+ sectionPressed[1]+ sectionPressed[2])/(randomVal1))*12;
+                g = (int) ((sectionPressed[0]+ sectionPressed[1]+ sectionPressed[2])/(randomVal2))*12;
+                b = (int) ((sectionPressed[0]+ sectionPressed[1]+ sectionPressed[2])/(randomVal3))*12;
+            }
+        }
+        int customColor = Color.rgb(r,g,b);
+        gridLayout.setBackgroundColor(customColor);
+    }
+
+    public void evokeReplay(ArrayList<int[]> touch){ //todo: collect replay data as ArrayList<xCoord,yCoord>
+        for (int i = 0; i < xCoord.length; i++){
+            xCoord[i] = touch.get(0)[i];
+        }
+        for (int j = 0; j < yCoord.length; j++){
+            yCoord[j] = touch.get(1)[j];
+        }
+        XYtoSynth(xCoord, yCoord);
     }
 
     public static void randomizeColors(){
